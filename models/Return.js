@@ -1,4 +1,5 @@
-const db = require('../config/db')
+const db = require('../config/db');
+const { createNotification, markAsRead } = require('./Notification');
 
 const allReturn = async (UserID) => {
     try {
@@ -63,6 +64,8 @@ const singleReturn = async (cashID) => {
         WHERE r.ReturnID = ?;
     `, [cashID]);
 
+    // markAsRead(cashID)
+
     return data[0];
 };
 
@@ -83,6 +86,11 @@ const newReturn = async (returnData , userID) => {
     VALUES
         (?,?,?,?,?,1,?);
     `,[customer,phone,RPPhoneID,TPPhoneID,userID,comment])
+
+    const [lastInserted] = await db.query('SELECT LAST_INSERT_ID() AS id');
+    const lastInsertedId = lastInserted[0].id;
+
+    // createNotification(userID,'return',lastInsertedId)
 
     await db.query(`UPDATE phone SET status = 1 WHERE PhoneID = ?`,[RPPhoneID])
     await db.query(`UPDATE phone SET status = 0 WHERE PhoneID = ?`,[TPPhoneID])

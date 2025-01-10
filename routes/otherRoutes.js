@@ -8,6 +8,7 @@ const { addTopup, getAllTopups, getTopupByID, editTopupByID, topupDelete } = req
 const { addPhone, getAllPhone, getPhoneByID, editPhoneByID, PhoneDelete, plusStock,getAllGroup, getGroupByID, GroupDelete, editGroupByID, getAllPhones, groups, getSoldPhones, getAllCPhone, phoneCount, addSmallPhone, getAllSmallPhone, getSmallPhoneByID, editSmallPhoneByID, SmallPhoneDelete, SmallPhoneCount } = require('../controllers/phoneController');
 const { getAllPayments, addPayment, getPaymentByID, editPaymentByID, paymentDelete, addPaymentItem, getAllPaymentItems, deleteSlowRecord, editProgressByID } = require('../controllers/slowController');
 const { addComment, pendingCount, getAllComments, doneComment } = require('../controllers/commentController');
+const { getAllNotifications, getNotificationCount } = require('../controllers/notificationController');
 
 // phone
 router.get('/soldPhones' , getSoldPhones )
@@ -91,6 +92,10 @@ router.post('/addComment' , verifyJWT , addComment)
 router.get('/pendingCount' , pendingCount)
 router.get('/allComments' , getAllComments)
 router.put('/doneComment/:id' , doneComment)
+
+//notifications
+router.get('/allNotifications',getAllNotifications)
+router.get('/notificationCount',getNotificationCount)
 
 
 module.exports = router;

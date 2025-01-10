@@ -1,4 +1,5 @@
 const db = require('../config/db')
+const { createNotification, markAsRead } = require('./Notification');
 
 const allTopups = async (UserID) => {
     try {
@@ -49,6 +50,8 @@ const singleTopup = async (topupID) => {
         WHERE t.TopUpID = ?;
     `, [topupID])
 
+    // markAsRead(topupID)
+
     return data[0];
 }
     const newTopup = async (topupData , userID) => {
@@ -91,6 +94,11 @@ const singleTopup = async (topupID) => {
                     (?,?,?,?,?,?,?,?,?,?,1);
                 `,[customer,phone,CPphoneName,CPimei1,CPimei2,PhoneID,NIDA,cost,closerUser,userID])
 
+                const [lastInserted] = await db.query('SELECT LAST_INSERT_ID() AS id');
+                const lastInsertedId = lastInserted[0].id;
+
+                // createNotification(userID,'topup',lastInsertedId)
+                
                 const status = 0;
                 // Step 5: Update the quantity in the phone table (decrement by 1)
                 await db.query(`
@@ -99,26 +107,30 @@ const singleTopup = async (topupID) => {
                     WHERE PhoneID = ?
                 `, [status,PhoneID]);
 
-                const phoneDetails = await db.query(`
+                    const phoneDetails = await db.query(`
                         SELECT PhoneID
                         FROM phone
                         WHERE IMEI1 = ? OR IMEI2 = ?   
                     `, [CPimei1,CPimei2]);
 
-                    if (phoneDetails && phoneDetails.length > 0) {
+
+                    if (phoneDetails && phoneDetails[0].length > 0) {
                         const phoneID = phoneDetails[0][0].PhoneID;
+
                         await db.query(`
                         UPDATE phone 
                         SET status = 2  
                         WHERE PhoneID = ?;
                         `,[phoneID]);
-                    }
-                        else{
 
-                            await db.query(`
-                            INSERT INTO phone (PhoneName,IMEI1,IMEI2,status) VALUES (?,?,?,2);
-                            `,[CPphoneName,CPimei1,CPimei2]);
-                        }
+                    }else{
+
+                        await db.query(`
+                        INSERT INTO phone (PhoneName,IMEI1,IMEI2,status) VALUES (?,?,?,2);
+                        `,[CPphoneName,CPimei1,CPimei2]);
+
+                        
+                    }
 
 
                 //Step 6: Return success
@@ -128,6 +140,7 @@ const singleTopup = async (topupID) => {
                 throw new Error("PhoneID not found");
             }
     }
+
 const updateTopup = async (topupData , userID , topupID) => {
     const {
         customer,

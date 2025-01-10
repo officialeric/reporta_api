@@ -1,4 +1,5 @@
-const db = require('../config/db')
+const db = require('../config/db');
+const { createNotification, markAsRead } = require('./Notification');
 
 const allPayments = async (UserID) => {
     try {
@@ -49,6 +50,8 @@ const allPaymentItems = async (paymentID) => {
 
         `, [paymentID]);
 
+        markAsRead(paymentID)
+
         
         return data[0]; 
         // console.log(data[0])
@@ -88,6 +91,11 @@ const newPayment = async (slowData, userID) => {
         (?, ?, ?, ?,?)`, 
         [customer, PhoneName, phone, userID,amount]
     );
+
+    const [lastInserted] = await db.query('SELECT LAST_INSERT_ID() AS id');
+    const lastInsertedId = lastInserted[0].id;
+
+    createNotification(userID,'slowpayment',lastInsertedId)
 
     // Step 2: Get the PaymentID of the newly inserted payment
     const PaymentID = result[0].insertId;
@@ -313,6 +321,8 @@ const newPaymentItem = async (paymentData, userID) => {
         VALUES (?, ?, ? )`, 
         [paymentID, amount, userID]
     );
+
+    createNotification(userID,'slowpayment', paymentID)
 
     await db.query(`
         UPDATE slowpayment

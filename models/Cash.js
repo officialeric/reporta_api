@@ -1,4 +1,5 @@
-const db = require('../config/db')
+const db = require('../config/db');
+const { createNotification, markAsRead } = require('./Notification');
 
 const newCash = async (cashData, userID) => {
     const {
@@ -38,6 +39,11 @@ const newCash = async (cashData, userID) => {
             VALUES
                 (?, ?, ?, ?, ?, 1);
         `, [customer, phone, PhoneID, phoneCost, userID]);
+
+        const [lastInserted] = await db.query('SELECT LAST_INSERT_ID() AS id');
+        const lastInsertedId = lastInserted[0].id;
+
+        // createNotification(userID,'cashsale',lastInsertedId);
 
         const status = 0;
         const isCompleted = 1;
@@ -306,6 +312,8 @@ const singleCash = async (cashID) => {
         INNER JOIN phone p on p.PhoneID = c.PhoneID
         WHERE c.CSID = ?;
     `, [cashID])
+
+    // markAsRead(cashID)
 
     return data[0];
 }
