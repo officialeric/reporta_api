@@ -211,7 +211,7 @@ const updateUser = async (userData , userID) => {
 const userCount = async () => {
     try {
         const result = await db.query(`
-            SELECT COUNT(*) as userCount FROM users;
+            SELECT COUNT(*) as userCount FROM users where status = 1;
         `);
         // console.log(result[0][0].phoneCount)
 
