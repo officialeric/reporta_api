@@ -1,6 +1,18 @@
 const db = require('../config/db');
 const { createNotification, markAsRead } = require('./Notification');
 
+function generateUniqueSixDigitNumberBasedOnDate() {
+    const now = new Date();
+    
+    const day = now.getDate(); // Day of the month (1-31)
+    const month = now.getMonth() + 1; // Month (0-11), so we add 1
+    const second = now.getSeconds(); // Seconds (0-59)
+    
+    const uniqueNumber = `${String(day).padStart(2, '0')}${String(month).padStart(2, '0')}${String(second).padStart(2, '0')}`;
+  
+    return uniqueNumber;
+  }
+
 const newCash = async (cashData, userID) => {
     const {
         customer,
@@ -33,12 +45,14 @@ const newCash = async (cashData, userID) => {
         }
 
         // Step 4: Proceed to insert the cashsale record
+        const code = generateUniqueSixDigitNumberBasedOnDate();
+
         await db.query(`
             INSERT INTO cashsale
-                (CustomerName, CustomerPhoneNumber, PhoneID, SellingPrice, UserID, status)
+                (CustomerName, CustomerPhoneNumber, PhoneID, SellingPrice, UserID, status , code)
             VALUES
-                (?, ?, ?, ?, ?, 1);
-        `, [customer, phone, PhoneID, phoneCost, userID]);
+                (?, ?, ?, ?, ?, 1 , ?);
+        `, [customer, phone, PhoneID, phoneCost, userID,code]);
 
         const [lastInserted] = await db.query('SELECT LAST_INSERT_ID() AS id');
         const lastInsertedId = lastInserted[0].id;
@@ -102,12 +116,14 @@ const newSmallCash = async (cashData, userID) => {
         }
 
         // Step 4: Proceed to insert the cashsale record
+        const code = generateUniqueSixDigitNumberBasedOnDate();
+
         await db.query(`
             INSERT INTO smallcashsale
-                (CustomerName, CustomerPhoneNumber, SmallPhoneID, SellingPrice, UserID, status ,created_at)
+                (CustomerName, CustomerPhoneNumber, SmallPhoneID, SellingPrice, UserID, status ,created_at,code)
             VALUES
-                (?, ?, ?, ?, ?, 1, NOW());
-        `, [customer, phone, PhoneID, phoneCost, userID]);
+                (?, ?, ?, ?, ?, 1, NOW(),?);
+        `, [customer, phone, PhoneID, phoneCost, userID,code]);
 
         // Step 5: Update the quantity in the phone table (decrement by 1)
         await db.query(`
@@ -306,7 +322,7 @@ const allSmallCash = async (UserID) => {
 
 const singleCash = async (cashID) => {
     const [data] = await db.query(`
-        SELECT c.CustomerName, c.CustomerPhoneNumber,c.SellingPrice , c.created_at as muda , u.UserName , p.*
+        SELECT c.CustomerName,c.code ,c.CustomerPhoneNumber,c.SellingPrice , c.created_at as muda , u.UserName , p.*
         FROM cashsale c
         INNER JOIN users u ON u.UserID = c.UserID
         INNER JOIN phone p on p.PhoneID = c.PhoneID
@@ -319,7 +335,7 @@ const singleCash = async (cashID) => {
 }
 const singleSmallCash = async (cashID) => {
     const [data] = await db.query(`
-        SELECT c.CustomerName, c.CustomerPhoneNumber,c.SellingPrice , c.created_at as muda , u.UserName , p.*
+        SELECT c.CustomerName,c.code ,c.CustomerPhoneNumber,c.SellingPrice , c.created_at as muda , u.UserName , p.*
         FROM smallcashsale c
         INNER JOIN users u ON u.UserID = c.UserID
         INNER JOIN smallphone p on p.SmallPhoneID = c.SmallPhoneID
