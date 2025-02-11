@@ -46,7 +46,8 @@ const allPaymentItems = async (paymentID) => {
             FROM progress p
             INNER JOIN slowpayment s ON s.SlowPaymentID = p.SlowPaymentID
             INNER JOIN users u ON u.UserID = p.UserID
-            WHERE s.SlowPaymentID = ? AND p.status = 1;
+            WHERE s.SlowPaymentID = ? AND p.status = 1
+            ORDER BY p.created_at DESC;
 
         `, [paymentID]);
 
