@@ -16,7 +16,9 @@ const allReturn = async (UserID) => {
             const allReturnData = await db.query(`
                 SELECT r.*, u.UserName,
                        rp.PhoneName AS RPPhoneName,
-                       tp.PhoneName AS TPPhoneName
+                       tp.PhoneName AS TPPhoneName,
+                        rp.IMEI1 AS RPIMEI1,
+                        tp.IMEI1 AS TPIMEI1
                 FROM \`return\` r
                 INNER JOIN users u ON u.UserID = r.UserID
                 LEFT JOIN phone rp ON rp.PhoneID = r.RPPhoneID

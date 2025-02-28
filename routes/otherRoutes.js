@@ -9,6 +9,7 @@ const { addPhone, getAllPhone, getPhoneByID, editPhoneByID, PhoneDelete, plusSto
 const { getAllPayments, addPayment, getPaymentByID, editPaymentByID, paymentDelete, addPaymentItem, getAllPaymentItems, deleteSlowRecord, editProgressByID } = require('../controllers/slowController');
 const { addComment, pendingCount, getAllComments, doneComment } = require('../controllers/commentController');
 const { getAllNotifications, getNotificationCount } = require('../controllers/notificationController');
+const { upload } = require('../utils/uploadNida');
 
 // phone
 router.get('/soldPhones' , getSoldPhones )
@@ -63,7 +64,7 @@ router.get('/returnCount', returnCount)
 
 // top up sales
 router.get('/allTopups',verifyJWT , getAllTopups )
-router.post('/addTopup' , verifyJWT ,addTopup )
+router.post('/addTopup' , verifyJWT,upload.single('image') ,addTopup )
 router.get('/singleTopup/:id' , getTopupByID )
 router.put('/updateTopup/:id', verifyJWT , editTopupByID )
 router.post('/deleteTopup/:id', topupDelete)

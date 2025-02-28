@@ -1,10 +1,13 @@
 const express = require('express');
 const cors =require('cors')
+const path =require('path')
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
 const otherRoutes = require('./routes/otherRoutes');
 
 const app = express();
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Set up CORS
 const corsOptions = {

@@ -14,7 +14,7 @@ const allTopups = async (UserID) => {
         // Step 2: If the user is an admin, select all cash sales
         if (userData && userData[0].RoleName === 'admin') {
             const allTopupData = await db.query(`
-                SELECT t.*, u.UserName , p.PhoneName
+                SELECT t.*, u.UserName , p.PhoneName , p.IMEI1 as NPimei1
                 FROM topup t
                 INNER JOIN users u ON u.UserID = t.UserID                
                 INNER JOIN phone p on p.PhoneID = t.PhoneID
@@ -64,7 +64,8 @@ const singleTopup = async (topupID) => {
             PhoneID,
             NIDA,
             closerUser,
-            cost
+            cost,
+            image
         } = topupData;
 
             // Step 1: Fetch PhonePrice and Quantity from the phone table where PhoneID matches
@@ -88,11 +89,11 @@ const singleTopup = async (topupID) => {
                     INSERT INTO topup
                     (
                     CustomerName, PhoneNumber, CustomerPhone, CPIMEI1, CPIMEI2, 
-                    PhoneID,CustomerNIDA,TopUpCost,CloserUserPhone, UserID , status
+                    PhoneID,CustomerNIDA,TopUpCost,CloserUserPhone, UserID , status , image
                     )
                 VALUES
-                    (?,?,?,?,?,?,?,?,?,?,1);
-                `,[customer,phone,CPphoneName,CPimei1,CPimei2,PhoneID,NIDA,cost,closerUser,userID])
+                    (?,?,?,?,?,?,?,?,?,?,1,?);
+                `,[customer,phone,CPphoneName,CPimei1,CPimei2,PhoneID,NIDA,cost,closerUser,userID , image])
 
                 const [lastInserted] = await db.query('SELECT LAST_INSERT_ID() AS id');
                 const lastInsertedId = lastInserted[0].id;

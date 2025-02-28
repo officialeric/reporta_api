@@ -27,10 +27,23 @@ const getAllTopups = async (req, res) => {
 
 const   addTopup = async (req,res) => {
     const {userId} = req.user;
-    const topupData = req.body;
+    const { customer, phone, CPphoneName, CPimei1, CPimei2, PhoneID, NIDA, closerUser, cost } = req.body;
+    const image = req.file ? req.file.filename : null;
 
 
     try {
+      const topupData = {
+        customer,
+        phone,
+        CPphoneName,
+        CPimei1,
+        CPimei2,
+        PhoneID,
+        NIDA,
+        closerUser,
+        cost,
+        image,  
+      };
 
         const result = await TopUp.newTopup(topupData,userId)
 
@@ -38,7 +51,7 @@ const   addTopup = async (req,res) => {
           return res.status(400).json({
               message: result.message
           });
-      }
+        }
         
         if(result.cant){
             res.status(200).json({
