@@ -10,6 +10,7 @@ const { getAllPayments, addPayment, getPaymentByID, editPaymentByID, paymentDele
 const { addComment, pendingCount, getAllComments, doneComment } = require('../controllers/commentController');
 const { getAllNotifications, getNotificationCount } = require('../controllers/notificationController');
 const { upload } = require('../utils/uploadNida');
+const { addReport, UserPhoneCount, getAllUserPhones, getAllData } = require('../controllers/reportController');
 
 // phone
 router.get('/soldPhones' , getSoldPhones )
@@ -98,5 +99,11 @@ router.put('/doneComment/:id' , doneComment)
 router.get('/allNotifications',getAllNotifications)
 router.get('/notificationCount',getNotificationCount)
 
+
+// report
+router.post('/report',verifyJWT,addReport);
+router.get('/userPhoneCount',verifyJWT, UserPhoneCount);
+router.get('/userAllPhones',verifyJWT, getAllUserPhones);
+router.get('/allData', getAllData);
 
 module.exports = router;
