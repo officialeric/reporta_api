@@ -75,6 +75,7 @@ const allData = async ({ user, date }) => {
                 p.PhoneID,
                 p.PhoneName,
                 p.IMEI1,
+                p.IMEI2,
                 ss.created_at
             FROM 
                 sessionPhones sp
@@ -97,9 +98,61 @@ const allData = async ({ user, date }) => {
 }
 
 
+const generalData = async () => {
+    try {
+        const result = await db.query(`
+            SELECT 
+                ss.seller_id AS user,
+                p.PhoneID,
+                p.PhoneName,
+                p.IMEI1,
+                ss.created_at
+            FROM 
+                sessionPhones sp
+            JOIN 
+                sellerSessions ss ON sp.session_id = ss.id
+            JOIN 
+                phone p ON sp.phone_id = p.PhoneID
+            WHERE 
+                DATE(ss.created_at) = CURDATE()
+            ORDER BY 
+                sp.created_at;
+        `);
+
+        // Group by user with count
+        const grouped = {};
+        for (const row of result[0]) {
+            const user = row.user;
+            if (!grouped[user]) {
+                grouped[user] = {
+                    count: 0,
+                    data: []
+                };
+            }
+
+            grouped[user].data.push({
+                PhoneID: row.PhoneID,
+                PhoneName: row.PhoneName,
+                IMEI1: row.IMEI1,
+                created_at: row.created_at
+            });
+
+            grouped[user].count += 1;
+        }
+
+        return grouped;
+    } catch (error) {
+        console.error('Error fetching all data:', error);
+        throw error;
+    }
+};
+
+
+
 module.exports = {
     index,
     create,
     countBasedOnUser,
-    allData
+    allData,
+    generalData
 };

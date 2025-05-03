@@ -137,11 +137,30 @@ const eraseReturn = async (returnID) => {
     }
 }
 
-const returnCount = async () => {
+const returnCount = async (userID) => {
     try {
-        const result = await db.query(`
-            SELECT COUNT(*) as returnCount FROM \`return\` WHERE status = 1;
-        `);
+        // Step 1: Check if the user is an admin
+                const [userData] = await db.query(`
+                    SELECT r.RoleName
+                    FROM users u 
+                    INNER JOIN roles r on r.RoleID = u.RoleID
+                    WHERE u.UserID = ?;
+                `, [userID]);
+        
+                // Step 2: If the user is an admin, select all cash count   
+                if (userData && userData[0].RoleName === 'admin') {
+                    const result = await db.query(`
+                        SELECT COUNT(*) as returnCount FROM \`return\` WHERE status = 1 AND DATE(created_at) = CURDATE();
+                    `);
+                    return result[0][0].saleCount;
+                } 
+        
+
+                // Step 3: If the user is not an admin, only select cash count for that user
+                const result = await db.query(`
+                    SELECT COUNT(*) as returnCount FROM \`return\` WHERE UserID = ? AND status = 1 AND DATE(created_at) = CURDATE();
+                `,[userID]);
+
         // console.log(result[0][0].phoneCount)
 
         return result[0][0].returnCount;

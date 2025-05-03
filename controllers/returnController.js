@@ -82,8 +82,9 @@ const returnDelete = async (req, res) => {
 };
 
 const returnCount =async (req,res) => {
+    const {userId} = req.user;
   try {
-      const result = await Return.returnCount();
+      const result = await Return.returnCount(userId);
 
       res.status(200).json({
           data : result

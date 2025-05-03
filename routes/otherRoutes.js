@@ -10,12 +10,12 @@ const { getAllPayments, addPayment, getPaymentByID, editPaymentByID, paymentDele
 const { addComment, pendingCount, getAllComments, doneComment } = require('../controllers/commentController');
 const { getAllNotifications, getNotificationCount } = require('../controllers/notificationController');
 const { upload } = require('../utils/uploadNida');
-const { addReport, UserPhoneCount, getAllUserPhones, getAllData } = require('../controllers/reportController');
+const { addReport, UserPhoneCount, getAllUserPhones, getAllData, getGeneralData } = require('../controllers/reportController');
 
 // phone
 router.get('/soldPhones' , getSoldPhones )
 router.get('/allPhones/:id' , getAllPhones )
-router.post('/addPhone' ,addPhone )
+router.post('/addPhone' ,addPhone)
 router.get('/allPhone' , getAllPhone )
 router.get('/singlePhone/:id' , getPhoneByID )
 router.put('/updatePhone/:id' , editPhoneByID )
@@ -61,7 +61,7 @@ router.post('/addReturn' , verifyJWT ,addReturn )
 router.get('/singleReturn/:id' , getReturnByID )
 router.put('/updateReturn/:id', verifyJWT , editReturnByID )
 router.post('/deleteReturn/:id', returnDelete)
-router.get('/returnCount', returnCount)
+router.get('/returnCount',verifyJWT, returnCount)
 
 // top up sales
 router.get('/allTopups',verifyJWT , getAllTopups )
@@ -105,5 +105,6 @@ router.post('/report',verifyJWT,addReport);
 router.get('/userPhoneCount',verifyJWT, UserPhoneCount);
 router.get('/userAllPhones',verifyJWT, getAllUserPhones);
 router.get('/allData', getAllData);
+router.get('/generalData', getGeneralData);
 
 module.exports = router;

@@ -389,7 +389,7 @@ const saleCount = async (userID) => {
         // Step 2: If the user is an admin, select all cash count   
         if (userData && userData[0].RoleName === 'admin') {
             const result = await db.query(`
-                SELECT COUNT(*) as saleCount FROM cashsale WHERE status = 1;
+                SELECT COUNT(*) as saleCount FROM cashsale WHERE status = 1 AND DATE(created_at) = CURDATE();
             `);
             return result[0][0].saleCount;
         } 
@@ -397,7 +397,7 @@ const saleCount = async (userID) => {
 
         // Step 3: If the user is not an admin, only select cash count for that user
         const result = await db.query(`
-            SELECT COUNT(*) as saleCount FROM cashsale WHERE UserID = ? AND status = 1;
+            SELECT COUNT(*) as saleCount FROM cashsale WHERE UserID = ? AND status = 1  AND DATE(created_at) = CURDATE();;
         `,[userID]);
 
         return result[0][0].saleCount;
@@ -421,7 +421,7 @@ const SmallSaleCount = async (userID) => {
         // Step 2: If the user is an admin, select all cash count   
         if (userData && userData[0].RoleName === 'admin') {
             const result = await db.query(`
-                SELECT COUNT(*) as SmallSaleCount FROM smallcashsale WHERE status = 1;
+                SELECT COUNT(*) as SmallSaleCount FROM smallcashsale WHERE status = 1 AND DATE(created_at) = CURDATE();
             `);
             return result[0][0].SmallSaleCount;
         } 
@@ -429,7 +429,7 @@ const SmallSaleCount = async (userID) => {
 
         // Step 3: If the user is not an admin, only select cash count for that user
         const result = await db.query(`
-            SELECT COUNT(*) as SmallSaleCount FROM smallcashsale WHERE UserID = ? AND status = 1;
+            SELECT COUNT(*) as SmallSaleCount FROM smallcashsale WHERE UserID = ? AND status = 1 AND DATE(created_at) = CURDATE();
         `,[userID]);
 
         return result[0][0].SmallSaleCount;

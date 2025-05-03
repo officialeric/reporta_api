@@ -40,7 +40,7 @@ const addReport = async (req, res) => {
 
     } catch (error) {
         console.error("Error adding report:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: error.message });
     }
 }
 
@@ -56,9 +56,23 @@ const UserPhoneCount =async (req,res) => {
   }
 }
 
+const getGeneralData = async (req, res) => {
+  try {
+      const results = await Report.generalData();
+
+      res.status(200).json({
+        data : results
+      }); 
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server Error' });
+    }
+  };
+
 module.exports = {
     getAllUserPhones,
     addReport,
     UserPhoneCount,
-    getAllData
+    getAllData,
+    getGeneralData
 };
