@@ -13,6 +13,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const corsOptions = {
   origin: [
     'http://localhost:3000',
+    'http://mypayment.johshopping.com',
     'https://report.johshopping.com',
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

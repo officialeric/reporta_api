@@ -152,7 +152,7 @@ const returnCount = async (userID) => {
                     const result = await db.query(`
                         SELECT COUNT(*) as returnCount FROM \`return\` WHERE status = 1 AND DATE(created_at) = CURDATE();
                     `);
-                    return result[0][0].saleCount;
+                    return result[0][0].returnCount;
                 } 
         
 

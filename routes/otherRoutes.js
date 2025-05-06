@@ -11,6 +11,7 @@ const { addComment, pendingCount, getAllComments, doneComment } = require('../co
 const { getAllNotifications, getNotificationCount } = require('../controllers/notificationController');
 const { upload } = require('../utils/uploadNida');
 const { addReport, UserPhoneCount, getAllUserPhones, getAllData, getGeneralData } = require('../controllers/reportController');
+const { getPaymentsByPhone } = require('../controllers/customerController');
 
 // phone
 router.get('/soldPhones' , getSoldPhones )
@@ -106,5 +107,9 @@ router.get('/userPhoneCount',verifyJWT, UserPhoneCount);
 router.get('/userAllPhones',verifyJWT, getAllUserPhones);
 router.get('/allData', getAllData);
 router.get('/generalData', getGeneralData);
+
+
+//customers routes
+router.get('/mypayments/:phone',getPaymentsByPhone)
 
 module.exports = router;
