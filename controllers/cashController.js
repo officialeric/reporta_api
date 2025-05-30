@@ -121,11 +121,22 @@ const editSmallCashByID = async (req,res) => {
 }
 const getAllCash = async (req, res) => {
   const {userId} = req.user;
+  const { date } = req.query; 
+
     try {
+      if (date) {
+        const allCash = await Cash.allCashByDate(userId, date);
+        return res.status(200).json({
+          data: allCash
+        });
+      }
+
+      // If no date is provided, fetch all cash records
       const allCash = await Cash.allCash(userId);
       res.status(200).json({
         data : allCash
       }); 
+
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server Error' });

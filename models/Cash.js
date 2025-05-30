@@ -240,7 +240,7 @@ const updateSmallCash = async (cashData , userID , cashID) => {
      
 }
 
-const allCash = async (UserID) => {
+const allCash = async (UserID, date = null) => {
     try {
         // Step 1: Check if the user is an admin
         const [userData] = await db.query(`
@@ -250,35 +250,45 @@ const allCash = async (UserID) => {
             WHERE u.UserID = ?;
         `, [UserID]);
 
-        // Step 2: If the user is an admin, select all cash sales
+        let query, params;
         if (userData && userData[0].RoleName === 'admin') {
-            const allCashData = await db.query(`
+            // Admin: fetch all cash sales, optionally filter by date
+            query = `
                 SELECT c.*, u.UserName , p.PhoneName
                 FROM cashsale c
                 INNER JOIN users u ON u.UserID = c.UserID
                 INNER JOIN phone p on p.PhoneID = c.PhoneID
                 WHERE c.status = 1
+                ${date ? 'AND DATE(c.created_at) = ?' : ''}
                 ORDER BY c.CSID DESC;
-            `);
-            return allCashData[0];
-        } 
+            `;
+            params = date ? [date] : [];
+        } else {
+            // Non-admin: fetch only user's cash sales, optionally filter by date
+            query = `
+                SELECT c.*, u.UserName , p.PhoneName
+                FROM cashsale c
+                INNER JOIN users u ON u.UserID = c.UserID
+                INNER JOIN phone p on p.PhoneID = c.PhoneID
+                WHERE c.status = 1 AND u.UserID = ?
+                ${date ? 'AND DATE(c.created_at) = ?' : ''}
+                ORDER BY c.CSID DESC;
+            `;
+            params = date ? [UserID, date] : [UserID];
+        }
 
-        // Step 3: If the user is not an admin, only select cash sales for that user
-        const userCashData = await db.query(`
-            SELECT c.*, u.UserName , p.PhoneName
-            FROM cashsale c
-            INNER JOIN users u ON u.UserID = c.UserID
-            INNER JOIN phone p on p.PhoneID = c.PhoneID
-            WHERE c.status = 1 AND u.UserID = ?
-            ORDER BY c.CSID DESC;
-        `, [UserID]);
-
-        return userCashData[0]; 
+        const result = await db.query(query, params);
+        return result[0];
     } catch (error) {
         console.error('Error fetching cash sales:', error);
         throw error; 
     }
 };
+
+const allCashByDate = async (UserID, date) => {
+    return allCash(UserID, date);
+};
+
 const allSmallCash = async (UserID) => {
     try {
         // Step 1: Check if the user is an admin
@@ -443,5 +453,5 @@ const SmallSaleCount = async (userID) => {
 
 module.exports = {
     newCash , allCash ,  singleCash , updateCash , eraseCash,saleCount,
-    newSmallCash,allSmallCash,singleSmallCash,updateSmallCash,eraseSmallCash,SmallSaleCount
+    newSmallCash,allSmallCash,singleSmallCash,updateSmallCash,eraseSmallCash,SmallSaleCount,allCashByDate
 }
