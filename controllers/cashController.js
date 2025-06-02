@@ -144,7 +144,15 @@ const getAllCash = async (req, res) => {
   };
 const getAllSmallCash = async (req, res) => {
   const {userId} = req.user;
+  const { date } = req.query; 
+
     try {
+      if (date) {
+        const allCash = await Cash.allSmallCashByDate(userId, date);
+        return res.status(200).json({
+          data: allCash
+        });
+      }
       const allCash = await Cash.allSmallCash(userId);
       res.status(200).json({
         data : allCash

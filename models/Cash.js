@@ -289,9 +289,9 @@ const allCashByDate = async (UserID, date) => {
     return allCash(UserID, date);
 };
 
-const allSmallCash = async (UserID) => {
+const allSmallCash = async (UserID, date = null) => {
     try {
-        // Step 1: Check if the user is an admin
+        //Check if the user is an admin
         const [userData] = await db.query(`
             SELECT r.RoleName
             FROM users u 
@@ -299,34 +299,43 @@ const allSmallCash = async (UserID) => {
             WHERE u.UserID = ?;
         `, [UserID]);
 
-        // Step 2: If the user is an admin, select all cash sales
+        let query, params;
         if (userData && userData[0].RoleName === 'admin') {
-            const allCashData = await db.query(`
+            query = `
                 SELECT c.*, u.UserName , p.PhoneName
                 FROM smallcashsale c
                 INNER JOIN users u ON u.UserID = c.UserID
                 INNER JOIN smallphone p on p.SmallPhoneID = c.SmallPhoneID
                 WHERE c.status = 1
+                ${date ? 'AND DATE(c.created_at) = ?' : ''}
                 ORDER BY c.SCSID DESC;
-            `);
-            return allCashData[0];
-        } 
+            `;
+            params = date ? [date] : [];
+        } else {
+            query = `
+                SELECT c.*, u.UserName , p.PhoneName
+                FROM smallcashsale c
+                INNER JOIN users u ON u.UserID = c.UserID
+                INNER JOIN smallphone p on p.SmallPhoneID = c.SmallPhoneID
+                WHERE c.status = 1 AND u.UserID = ?
+                ${date ? 'AND DATE(c.created_at) = ?' : ''}
+                ORDER BY c.SCSID DESC;
+            `;
+            params = date ? [UserID, date] : [UserID];
+        }
 
-        // Step 3: If the user is not an admin, only select cash sales for that user
-        const userCashData = await db.query(`
-            SELECT c.*, u.UserName , p.PhoneName
-            FROM smallcashsale c
-            INNER JOIN users u ON u.UserID = c.UserID
-            INNER JOIN smallphone p on p.SmallPhoneID = c.SmallPhoneID
-            WHERE c.status = 1 AND u.UserID = ?
-            ORDER BY c.SCSID DESC;
-        `, [UserID]);
+        const result = await db.query(query, params);
+        return result[0];
 
-        return userCashData[0]; 
     } catch (error) {
-        console.error('Error fetching cash sales:', error);
+        console.error('Error fetching small cash sales:', error);
         throw error; 
     }
+};
+
+
+const allSmallCashByDate = async (UserID, date) => {
+    return allSmallCash(UserID, date);
 };
 
 
@@ -452,6 +461,6 @@ const SmallSaleCount = async (userID) => {
 }
 
 module.exports = {
-    newCash , allCash ,  singleCash , updateCash , eraseCash,saleCount,
+    newCash , allCash ,  singleCash , updateCash , eraseCash,saleCount,allSmallCashByDate,
     newSmallCash,allSmallCash,singleSmallCash,updateSmallCash,eraseSmallCash,SmallSaleCount,allCashByDate
 }
